@@ -10,7 +10,7 @@
 #import "CameraView.h"
 #import "CusCamera.h"
 #import "MoreChooseCollectionViewCell.h"
-#import "ChoosePhotoMethod.h"
+
 static NSString *const indentify = @"photolibraryidentify";
 static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
 

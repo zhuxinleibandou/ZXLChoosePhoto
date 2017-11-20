@@ -7,6 +7,7 @@
 //
 
 #import "BaseView.h"
+#import "ChoosePhotoMethod.h"
 
 @interface CameraView : UIView
 

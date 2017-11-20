@@ -1,13 +1,16 @@
 //
 //  AppDelegate.m
-//  ChoosePhoto
+//  ePayProject
 //
-//  Created by 朱信磊 on 2017/11/20.
-//  Copyright © 2017年 com.bandou.app.choosephoto. All rights reserved.
+//  Created by 朱信磊 on 2017/11/14.
+//  Copyright © 2017年 com.bandou.app.epay. All rights reserved.
 //
 
 #import "AppDelegate.h"
-
+#import <AVFoundation/AVFoundation.h>
+#import <AssetsLibrary/AssetsLibrary.h>
+#import <Photos/Photos.h>
+#import "IndexViewController.h"
 @interface AppDelegate ()
 
 @end
@@ -16,7 +19,20 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    self.window = [[UIWindow alloc]initWithFrame:[[UIScreen mainScreen]bounds]];
+    [self.window makeKeyAndVisible];
+    IndexViewController *vc = [[IndexViewController alloc]init];
+    UINavigationController *nav = [[UINavigationController alloc]initWithRootViewController:vc];
+    [nav.navigationBar setTintColor:[UIColor blackColor]];
+    [nav.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor]}];
+    [nav.navigationBar setTranslucent:false];  //将Translucent穿透/透明效果取消
+    nav.interactivePopGestureRecognizer.enabled = NO; //去掉右滑 返回效果
+    [self.window setRootViewController:nav];
+    [application setApplicationIconBadgeNumber:0];
+    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+    }];
+    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+    }];
     return YES;
 }
 

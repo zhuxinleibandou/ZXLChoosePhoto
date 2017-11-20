@@ -9,7 +9,6 @@
 #import <Photos/Photos.h>
 #import "ChoosePhotoCollectionViewCell.h"
 #import "ShowBigPhotoView.h"
-#import "ChoosePhotoMethod.h"
 #import "CusPickerView.h"
 #import "ChoosePhotoViewController.h"
 typedef NS_ENUM(NSUInteger, ChooseType) {
