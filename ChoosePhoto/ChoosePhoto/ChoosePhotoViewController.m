@@ -19,8 +19,8 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
 {
     
     float bt_rec_item_width;
-    //选择的图片标识
-    NSMutableArray *ary_imageInfo ;
+    //已选择的图片索引
+    NSMutableArray *arySelImgIndex ;
     //当前选中的相册
     PHCollection   *selPHCollection;
 }
@@ -50,6 +50,7 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.navigationItem.titleView = [self headerView];
     if (_chooseType==ChooseTypeOne) {
         [_collect registerClass:[ChoosePhotoCollectionViewCell class] forCellWithReuseIdentifier:indentify];
     }else{
@@ -70,7 +71,6 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
     [super loadView];
     [self setTitle:@"选择照片"];
     [self.view setBackgroundColor:[UIColor whiteColor]];
-    self.navigationItem.titleView = [self headerView];
     float offset_y = 0.0f;
     bt_rec_item_width = (kGetWidth(self.view.frame)) / 4;
     UICollectionViewFlowLayout *layOutRec = [[UICollectionViewFlowLayout alloc]init];
@@ -105,10 +105,6 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
                     selPHCollection = collection;
                     break;
                 }
-//                if (!selPHCollection) {
-//                    selPHCollection = collection;
-//                }
-//                break;
             }
         }
     }
@@ -158,7 +154,7 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
             PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:assetCollection options:option];
             //是否有照片
             if (result.count > 0) {
-               [aryTitle addObject:[[ChoosePhotoMethod shareManager]transformAblumTitle:collection.localizedTitle]];
+                [aryTitle addObject:[[ChoosePhotoMethod shareManager]transformAblumTitle:collection.localizedTitle]];
             }
         }
     }];
@@ -169,6 +165,8 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
         selPHCollection =  result[row];
         _ary_datas= [self getAllAssetInPhotoAblumWithAscending:false withCollection:selPHCollection];
         [_collect reloadData];
+        [_ary_selPhotos removeAllObjects];
+        [arySelImgIndex removeAllObjects];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_btTitle setTitle:title forState:UIControlStateNormal];
             [_btTitle setTitleEdgeInsets:UIEdgeInsetsMake(0, -_btTitle.imageView.intrinsicContentSize.width, 0, _btTitle.imageView.intrinsicContentSize.width)];
@@ -213,7 +211,7 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
 //相册变化回调
 - (void)photoLibraryDidChange:(PHChange *)changeInstance
 {
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         // your codes
     });
 }
@@ -224,12 +222,12 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
     _chooseType = chooseType;
     if (_chooseType==ChooseTypeMore) {
         _ary_selPhotos = [[NSMutableArray alloc]init];
-        ary_imageInfo = [[NSMutableArray alloc]init];
+        arySelImgIndex = [[NSMutableArray alloc]init];
         [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem  alloc]initWithTitle:@"确定" style:UIBarButtonItemStylePlain target:self action:@selector(SureChoose)]];
     }else{
         //单张
         [_ary_selPhotos removeAllObjects];
-        [ary_imageInfo removeAllObjects];
+        [arySelImgIndex removeAllObjects];
     }
 }
 
@@ -276,15 +274,15 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
     NSMutableArray<PHAsset *> *assets = [NSMutableArray array];
     BDLog(@"%@",collection.localizedTitle);
     if ([collection isKindOfClass:[PHAssetCollection class]]) {
-            PHAssetCollection *assetCollection = (PHAssetCollection *)collection;
-            PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:assetCollection options:option];
-            [result enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                PHAsset *asset = (PHAsset *)obj;
-                if (!asset.hidden) {    //是否被隐藏
-                    NSLog(@"照片名%@", [asset valueForKey:@"filename"]);
-                    [assets addObject:asset];
-                }
-            }];
+        PHAssetCollection *assetCollection = (PHAssetCollection *)collection;
+        PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:assetCollection options:option];
+        [result enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            PHAsset *asset = (PHAsset *)obj;
+            if (!asset.hidden) {    //是否被隐藏
+                NSLog(@"照片名%@", [asset valueForKey:@"filename"]);
+                [assets addObject:asset];
+            }
+        }];
     }
     return assets;
 }
@@ -369,12 +367,21 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
             MoreChooseCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:ChooseMoreImagesCell forIndexPath:indexPath];
             cell.more_delegate = self;
             [cell setMoreChooseBtHidden:false];
+            [cell setSel_selected:false];
             PHAsset *asset = [_ary_datas objectAtIndex:indexPath.row-1];
             //解析缩略图
-            [self accessToImageAccordingToTheAsset:asset size:CGSizeMake(bt_rec_item_width*4, bt_rec_item_width*4) resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
+            [self accessToImageAccordingToTheAsset:asset size:CGSizeMake(bt_rec_item_width*4, bt_rec_item_width*4) resizeMode:PHImageRequestOptionsResizeModeExact completion:^(UIImage *image, NSDictionary *info) {
                 //解析出来的图片
-                [cell.imgVC setImage:image];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [cell.imgVC setImage:image];
+                });
             }];
+            for (NSDictionary *dict in _ary_selPhotos) {
+                NSInteger selRow = [[dict  objectForKey:@"key"] integerValue];
+                if (selRow == indexPath.row) {
+                    [cell setSel_selected:YES];
+                }
+            }
             return cell;
         }
     }
@@ -427,35 +434,37 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
 
 #pragma mark - 选择多张
 - (void)MoreChooseCollectionViewClickCell:(MoreChooseCollectionViewCell *)cell{
-    NSInteger row = [_collect indexPathForCell:cell].row;
+    NSIndexPath *indexPath = [_collect indexPathForCell:cell];
+    NSInteger row = indexPath.row;
     if (row==0) {
         BDLog(@"照相");
         [self initCarmera];
     }else{
         //选择多张
-        NSInteger row = [_collect indexPathForCell:cell].row -1 ;
-        id obj = [self.ary_datas objectAtIndex:row];
+        NSInteger row = [_collect indexPathForCell:cell].row  ;
+        id obj = [self.ary_datas objectAtIndex:row - 1];
         //是否是图片对象
         if ([obj isKindOfClass:[PHAsset class]]) {
             PHAsset *asset = (PHAsset *)obj;
             PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
-            option.networkAccessAllowed = YES;
+            option.networkAccessAllowed = false;
             //解析缩略图
-            [[PHCachingImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage * _Nullable image, NSDictionary * _Nullable info) {
+            [self accessToImageAccordingToTheAsset:asset size:PHImageManagerMaximumSize resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
                 //解析出来的图片 添加到数组中
-                BDLog(@"%@",info);
-                //唯一标识
-                NSString *tokenKey = [info objectForKey:@"PHImageFileSandboxExtensionTokenKey"];
-                if ([ary_imageInfo containsObject:tokenKey]) {
-                    [ary_imageInfo removeObject:tokenKey];
+                //                BDLog(@"%@",info);
+                //                //唯一标识
+                //                NSString *tokenKey = [info objectForKey:@"PHImageFileSandboxExtensionTokenKey"];
+                NSString *selRow = [NSString stringWithFormat:@"%ld",row];
+                if ([arySelImgIndex containsObject:selRow]) {
+                    [arySelImgIndex removeObject:selRow];
                     //移除对应的dict
                     for (NSDictionary *value in _ary_selPhotos) {
-                        if ([[value objectForKey:@"key"] isEqualToString:tokenKey]) {
+                        NSString *row = [value objectForKey:@"key"];
+                        if ([row isEqualToString:selRow]) {
                             [_ary_selPhotos removeObject:value];
                             break;
                         }
                     }
-                    [cell setSel_selected:false];
                 }else{
                     
                     if (_maxImagesCount!=0 && _maxImagesCount <= _ary_selPhotos.count) {
@@ -466,12 +475,13 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
                     if (image.size.width>[[UIScreen mainScreen]bounds].size.width||image.size.height>[[UIScreen mainScreen]bounds].size.height) {
                         image= [[ChoosePhotoMethod shareManager]bd_imageScaleToSize:image inSize:CGSizeMake([[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height)];
                     }
-                    [ary_imageInfo addObject:tokenKey];
-                    [_ary_selPhotos addObject:@{@"key":tokenKey,@"image":image}];
-                    [cell setSel_selected:YES];
+                    [arySelImgIndex addObject:selRow];
+                    [_ary_selPhotos addObject:@{@"key":selRow,@"image":image}];
                 }
+                [_collect reloadItemsAtIndexPaths:@[indexPath]];
             }];
         }
+        
     }
     
 }
