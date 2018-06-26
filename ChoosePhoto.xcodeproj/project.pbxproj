@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		38B98AAB802C4FDFFB8CBECB /* libPods-ChoosePhoto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 853AEF1EBC8305495827BEE3 /* libPods-ChoosePhoto.a */; };
+		92DEA0EB20E2394A00A4D3FF /* PhotoTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DEA0E920E2394A00A4D3FF /* PhotoTool.m */; };
 		92E6BE681FC2CFF700162134 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 92E6BE671FC2CFF700162134 /* main.m */; };
 		92E6BE6B1FC2CFF700162134 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 92E6BE6A1FC2CFF700162134 /* AppDelegate.m */; };
 		92E6BE6E1FC2CFF700162134 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92E6BE6D1FC2CFF700162134 /* ViewController.m */; };
@@ -39,6 +40,8 @@
 		0CF515D2D896678106C8A74F /* Pods-ChoosePhoto.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChoosePhoto.release.xcconfig"; path = "Pods/Target Support Files/Pods-ChoosePhoto/Pods-ChoosePhoto.release.xcconfig"; sourceTree = "<group>"; };
 		42B1A392C027D248F4F35A75 /* Pods-ChoosePhoto.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChoosePhoto.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ChoosePhoto/Pods-ChoosePhoto.debug.xcconfig"; sourceTree = "<group>"; };
 		853AEF1EBC8305495827BEE3 /* libPods-ChoosePhoto.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ChoosePhoto.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		92DEA0E920E2394A00A4D3FF /* PhotoTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoTool.m; sourceTree = "<group>"; };
+		92DEA0EA20E2394A00A4D3FF /* PhotoTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoTool.h; sourceTree = "<group>"; };
 		92E6BE631FC2CFF700162134 /* ChoosePhoto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChoosePhoto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92E6BE671FC2CFF700162134 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		92E6BE691FC2CFF700162134 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -155,6 +158,8 @@
 				92E6BE871FC2D02E00162134 /* CusCamera */,
 				92E6BE851FC2D02E00162134 /* ChoosePhotoViewController.h */,
 				92E6BE861FC2D02E00162134 /* ChoosePhotoViewController.m */,
+				92DEA0EA20E2394A00A4D3FF /* PhotoTool.h */,
+				92DEA0E920E2394A00A4D3FF /* PhotoTool.m */,
 			);
 			path = ChoosePhoto;
 			sourceTree = "<group>";
@@ -386,6 +391,7 @@
 				92E6BE971FC2D02E00162134 /* MoreChooseCollectionViewCell.m in Sources */,
 				92E6BEC01FC2D52900162134 /* HDHUD.m in Sources */,
 				92E6BEC51FC2D54600162134 /* ChoosePhotoMethod.m in Sources */,
+				92DEA0EB20E2394A00A4D3FF /* PhotoTool.m in Sources */,
 				92E6BEAE1FC2D06B00162134 /* CusTabBarViewController.m in Sources */,
 				92E6BE991FC2D02E00162134 /* ChoosePhotoViewController.m in Sources */,
 				92E6BE681FC2CFF700162134 /* main.m in Sources */,
@@ -510,7 +516,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.bandou.app.ChoosePhoto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "cb02354e-9483-4ded-accd-419876995cef";
+				PROVISIONING_PROFILE = "a6b04a4e-456a-44a7-b998-8c33a4eafabd";
 				PROVISIONING_PROFILE_SPECIFIER = bandou_dev;
 			};
 			name = Debug;

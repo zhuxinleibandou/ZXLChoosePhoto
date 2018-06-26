@@ -30,3 +30,8 @@ typedef NS_ENUM(NSUInteger, ChooseType) {
 @property (assign, nonatomic) NSInteger     maxImagesCount;
 
 @end
+
+
+
+
+
