@@ -43,8 +43,8 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
 //所有相册照片数组
 @property (strong, nonatomic) NSMutableArray<PHAsset *>  *ary_datas;
 
-//选中的多张图片数组
-@property (strong, nonatomic) NSMutableArray<NSDictionary *>  *ary_selPhotos;
+//选中的多张照片数组
+@property (strong, nonatomic) NSMutableArray  *ary_selPhotos;
 
 /**
  所有相册集对象数组
@@ -320,10 +320,15 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
             [[PhotoTool sharePhotoTool] requestImageForAsset:asset size:size resizeMode:PHImageRequestOptionsResizeModeExact completion:^(UIImage *image, NSDictionary *info) {
                 //解析出来的图片
                 [cell.imgVC setImage:image];
+                for (NSMutableDictionary *dict in _ary_selPhotos) {
+                    PHAsset *obj = [dict valueForKey:@"phasset"];
+                    if ([obj isEqual:asset]) {
+                        [dict setValue:image forKey:@"image"];
+                    }
+                }
             }];
-            for (NSDictionary *dict in _ary_selPhotos) {
-                NSInteger selRow = [[dict  objectForKey:@"key"] integerValue];
-                if (selRow == indexPath.row) {
+            for (NSNumber *selRow in arySelImgIndex) {
+                if (selRow.intValue == indexPath.row) {
                     [cell setSel_selected:YES];
                 }
             }
@@ -393,36 +398,27 @@ static NSString *const ChooseMoreImagesCell = @"ChooseMoreImagesCell";
             PHAsset *asset = (PHAsset *)obj;
             PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
             option.networkAccessAllowed = false;
-            //解析缩略图
-            [[PhotoTool sharePhotoTool] requestImageForAsset:asset size:PHImageManagerMaximumSize resizeMode:PHImageRequestOptionsResizeModeExact completion:^(UIImage *image, NSDictionary *info) {
-                //解析出来的图片
-                [cell.imgVC setImage:image];
-                NSString *selRow = [NSString stringWithFormat:@"%ld",row];
-                if ([arySelImgIndex containsObject:selRow]) {
-                    [arySelImgIndex removeObject:selRow];
-                    //移除对应的dict
-                    for (NSDictionary *value in _ary_selPhotos) {
-                        NSString *row = [value objectForKey:@"key"];
-                        if ([row isEqualToString:selRow]) {
-                            [_ary_selPhotos removeObject:value];
-                            break;
-                        }
-                    }
-                }else{
-                    if (_maxImagesCount!=0 && _maxImagesCount <= _ary_selPhotos.count) {
+            BOOL same = false;
+            NSDictionary *selDict = nil;
+            for (NSDictionary *obj in _ary_selPhotos) {
+                if ([asset isEqual:[obj valueForKey:@"phasset"]]) {
+                    same = true;
+                    selDict = obj;
+                    break;
+                }
+            }
+            if (same) {
+               [_ary_selPhotos removeObject:selDict];
+               [arySelImgIndex removeObject:@(row)];
+            }else{
+                if (_maxImagesCount!=0 && _maxImagesCount <= _ary_selPhotos.count) {
                         [SVProgressHUD showInfoWithStatus:[NSString stringWithFormat:@"最多上传%ld张照片!",_maxImagesCount]];
                         return;
                     }
-                    //压缩图片
-                    if (image.size.width>[[UIScreen mainScreen]bounds].size.width||image.size.height>[[UIScreen mainScreen]bounds].size.height) {
-                        image= [[ChoosePhotoMethod shareManager]bd_imageScaleToSize:image inSize:CGSizeMake([[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height)];
-                    }
-                    [arySelImgIndex addObject:selRow];
-                    [_ary_selPhotos addObject:@{@"key":selRow,@"image":image}];
-                }
-                [_collect reloadItemsAtIndexPaths:@[indexPath]];
-            }];
-            
+                [_ary_selPhotos addObject:[[NSMutableDictionary alloc] initWithDictionary:@{@"phasset":asset,@"image":@""}]];
+                [arySelImgIndex addObject:@(row)];
+            }
+             [_collect reloadItemsAtIndexPaths:@[indexPath]];
         }
         
     }
